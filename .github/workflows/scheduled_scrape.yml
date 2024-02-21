@@ -1,0 +1,32 @@
+   # .github/workflows/scheduled_scrape.yml
+   name: Scheduled Scrape and Update
+
+   on:
+     schedule:
+       - cron: '0 */6 * * *'  # Runs at minute 0 past every 6th hour.
+
+   jobs:
+     build:
+       runs-on: ubuntu-latest
+       steps:
+         - name: Check out repository code
+           uses: actions/checkout@v2
+
+         - name: Set up Python
+           uses: actions/setup-python@v2
+           with:
+             python-version: '3.x'
+
+         - name: Install dependencies
+           run: pip install requests
+
+         - name: Run scrape and encode script
+           run: python mtpget.py
+
+         - name: Commit and push if there are changes
+           run: |
+             git config --global user.email "zeyanqu@gmail.com"
+             git config --global user.name "ltsj"
+             git add -A
+             git commit -m "Update encoded links" -a || exit 0
+             git push
